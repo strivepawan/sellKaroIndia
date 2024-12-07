@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "522444229973",
+    "project_id": "sellkaroindia-268ac",
+    "storage_bucket": "sellkaroindia-268ac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522444229973:android:76e10d5b14c472fa67f3dc",
+        "android_client_info": {
+          "package_name": "com.sellKaroIndia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKGkDfmWM8LaiePDX2gcjCaDTIv5vRUBE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
