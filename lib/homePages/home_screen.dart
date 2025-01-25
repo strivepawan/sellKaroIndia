@@ -9,7 +9,6 @@ import '../chatApp/api/apis.dart';
 import '../chatApp/screens/profile_screen.dart';
 import '../models/category_scroll_view.dart';
 import '../models/date_time_helper.dart';
-import '../models/notification badges.dart';
 import '../productview/all_product_details/all_product_details.dart';
 import '../services/location_service.dart';
 import 'search_page.dart';
@@ -334,10 +333,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         : int.tryParse(priceValue ?? '') ?? 0;
                     String userAddress = data['userAddress'] ?? '';
                     Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
-                    String category = document.reference.parent.parent?.id ??
-                        ''; // Get the category
-                    String docId = document.id; // Get the document ID
-                    String adId = document.id; // Get the ad ID
+                    String category =
+                        document.reference.parent.parent?.id ?? '';
+                    String docId = document.id;
+                    String adId = document.id;
+
+                    // Check if boostedAds is an array and convert to boolean
+                    bool boostedAds = data['boostedAds'] != null &&
+                        List.from(data['boostedAds']).isNotEmpty;
+
                     return AdData(
                       imageUrl: imageUrl,
                       adname: title,
@@ -348,12 +352,60 @@ class _HomeScreenState extends State<HomeScreen> {
                       docId: docId,
                       adId: adId,
                       isFavorite: true,
+                      city: data['city'] ?? '',
+                      boostedAds: boostedAds, // Handle the boostedAds correctly
                     );
                   }).toList();
 
                   if (adsData.isEmpty) {
-                    return const Center(child: Text('No data available'));
+                    return const Center(
+                        child: Text('No ads available in this location.'));
                   }
+
+                  // Filter by city
+                  List<AdData> sortedAdsData =
+                      adsData.where((ad) => ad.city == currentCity).toList();
+
+                  if (sortedAdsData.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            size: 100,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            'No Ads Available',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'There are no ads available in this location.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Sort boosted ads first
+                  sortedAdsData.sort((a, b) {
+                    if (a.boostedAds == b.boostedAds) {
+                      return 0;
+                    }
+                    return a.boostedAds ? -1 : 1; // Boosted ads come first
+                  });
 
                   return Padding(
                     padding: const EdgeInsets.all(10.0),
@@ -367,9 +419,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisSpacing: 8.0,
                         childAspectRatio: 0.7,
                       ),
-                      itemCount: adsData.length,
+                      itemCount: sortedAdsData.length,
                       itemBuilder: (context, index) {
-                        AdData adData = adsData[index];
+                        AdData adData = sortedAdsData[index];
                         return KeyedSubtree(
                           key: ValueKey(adData.adId),
                           child: GestureDetector(
@@ -489,7 +541,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-                                    // crossAxisAlignment: CrossAxisAlignment.,
                                     children: [
                                       const Icon(Icons.location_on,
                                           color: Color(0xFF767E94), size: 14),
@@ -527,7 +578,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
               },
-            ),
+            )
           ],
         ),
       ),
@@ -605,16 +656,24 @@ class AdData {
   final String docId;
   final String adId;
   bool isFavorite;
+  final String city;
+  final bool boostedAds; // Change to bool if you're checking for existence
 
-  AdData(
-      {required this.imageUrl,
-      required this.adname,
-      required this.price,
-      required this.userAddress,
-      required this.timestamp,
-      required this.category,
-      required this.docId,
-      required this.adId,
-      required this.isFavorite});
+  AdData({
+    required this.imageUrl,
+    required this.adname,
+    required this.price,
+    required this.userAddress,
+    required this.timestamp,
+    required this.category,
+    required this.docId,
+    required this.adId,
+    required this.isFavorite,
+    required this.city,
+    required this.boostedAds, // Updated constructor
+  });
+
   String get formattedPrice => PriceFormatter.formatPrice(price);
+
+  DateTime get formattedTimestamp => timestamp.toDate();
 }

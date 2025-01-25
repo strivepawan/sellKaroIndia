@@ -58,13 +58,15 @@ class _UserFormState extends State<UserForm> {
               .set({
             'name': _nameController.text,
             'phone': _phoneController.text,
+            'email': APIs.user.email ?? '', // Ensure the email is added
             'image': imageUrl,
             'uid': APIs.user.uid, // Use the user.uid to associate this record
+            'createdAt': FieldValue.serverTimestamp(), // Optional for tracking
           });
 
           if (mounted) {
             ScaffoldMessenger.of(this.context).showSnackBar(
-              SnackBar(content: Text('User data uploaded successfully!')),
+              const SnackBar(content: Text('User data uploaded successfully!')),
             );
           }
 
@@ -90,19 +92,21 @@ class _UserFormState extends State<UserForm> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(this.context).showSnackBar(
-            SnackBar(content: Text('Image upload failed. Please try again.')),
+            const SnackBar(content: Text('Image upload failed. Please try again.')),
           );
         }
       }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(this.context).showSnackBar(
-          SnackBar(
-              content: Text('Please fill all fields and select an image.')),
+          const SnackBar(
+            content: Text('Please fill all fields and select an image.'),
+          ),
         );
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

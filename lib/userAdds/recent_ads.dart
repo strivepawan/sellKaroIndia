@@ -267,7 +267,6 @@ class _RecentAdsState extends State<RecentAds> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   children: adsData[docId]!.map((doc) {
-                    // Create a FormattedDate instance
                     FormattedDate formattedDate = FormattedDate(timestamp: doc['timestamp']);
 
                     return GestureDetector(
@@ -287,7 +286,7 @@ class _RecentAdsState extends State<RecentAds> {
                         ),
                         child: Row(
                           children: [
-                            SizedBox(width: 10,),
+                            const SizedBox(width: 10),
                             if (doc['images'] != null && doc['images'].isNotEmpty)
                               Container(
                                 width: 100,
@@ -307,7 +306,7 @@ class _RecentAdsState extends State<RecentAds> {
                                   ],
                                 ),
                               ),
-                            SizedBox(width: 10,),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
@@ -345,120 +344,42 @@ class _RecentAdsState extends State<RecentAds> {
                                       ),
                                     ),
                                     const SizedBox(height: 10.0),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-
-                                        // Wrap Row with SingleChildScrollView for horizontal scrolling
-                                        SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () => _checkBoostStatusAndNavigate(context, docId, doc),
-                                                child: Container(
-                                                  height: 40,
-                                                  width: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.green.withOpacity(0.2),
-                                                        blurRadius: 5.0,
-                                                        spreadRadius: 2.0,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.call_missed_outgoing_outlined,
-                                                    color: Colors.green,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              GestureDetector(
-                                                onTap: () => ShareService.shareAd(docId, doc.id),
-                                                child: Container(
-                                                  height: 40,
-                                                  width: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.green.withOpacity(0.2),
-                                                        blurRadius: 5.0,
-                                                        spreadRadius: 2.0,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.share,
-                                                    color: Colors.green,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              GestureDetector(
-                                                onTap: () => _confirmDelete(context, docId, doc.id),
-                                                child: Container(
-                                                  height: 40,
-                                                  width: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.green.withOpacity(0.2),
-                                                        blurRadius: 5.0,
-                                                        spreadRadius: 2.0,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.delete,
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => EditData(
-                                                        whichType: docId,
-                                                        docName: doc.id,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Container(
-                                                  height: 40,
-                                                  width: 40,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.green.withOpacity(0.2),
-                                                        blurRadius: 5.0,
-                                                        spreadRadius: 2.0,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: const Icon(
-                                                    FontAwesomeIcons.pen,
-                                                    color: Colors.green,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: [
+                                          _buildActionIcon(
+                                            icon: Icons.call_missed_outgoing_outlined,
+                                            color: Colors.green,
+                                            onTap: () => _checkBoostStatusAndNavigate(context, docId, doc),
                                           ),
-                                        ),
-                                      ],
+                                          _buildActionIcon(
+                                            icon: Icons.share,
+                                            color: Colors.green,
+                                            onTap: () => ShareService.shareAd(docId, doc.id),
+                                          ),
+                                          _buildActionIcon(
+                                            icon: Icons.delete,
+                                            color: Colors.red,
+                                            onTap: () => _confirmDelete(context, docId, doc.id),
+                                          ),
+                                          _buildActionIcon(
+                                            icon: FontAwesomeIcons.pen,
+                                            color: Colors.green,
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => EditData(
+                                                    whichType: docId,
+                                                    docName: doc.id,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -476,6 +397,28 @@ class _RecentAdsState extends State<RecentAds> {
           },
         );
       }).toList(),
+    );
+  }
+  Widget _buildActionIcon({required IconData icon, required Color color, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        width: 40,
+        margin: const EdgeInsets.only(right: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 5.0,
+              spreadRadius: 2.0,
+            ),
+          ],
+        ),
+        child: Icon(icon, color: color),
+      ),
     );
   }
 }

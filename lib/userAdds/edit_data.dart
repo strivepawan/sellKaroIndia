@@ -77,53 +77,10 @@ class _EditDataState extends State<EditData> {
     }
   }
 
-  void handleNegotiableChange(String? value) {
-    setState(() {
-      negotiable = value ?? '';
-    });
-  }
-
-  void handleAddTag() {
-    if (tags.length < 5 && newTag.trim().isNotEmpty) {
-      setState(() {
-        tags.add(newTag.trim());
-        newTag = '';
-      });
-    }
-  }
-
-  void handleAdNameChange(String adNameValue) {
-    setState(() {
-      adName = adNameValue;
-    });
-  }
-
-  void handleRemoveTag(String tagToRemove) {
-    setState(() {
-      tags.remove(tagToRemove);
-    });
-  }
-
-  void handleTagChange(String value) {
-    setState(() {
-      tags.add(value);
-    });
-  }
-
-  void handleDescriptionChange(String value) {
-    setState(() {
-      description = value;
-    });
-  }
-
-  void handlePriceChange(String value) {
-    setState(() {
-      price = value;
-    });
-  }
-
   Future<String> uploadImage(File imageFile) async {
-    final Reference storageReference = _firebaseStorage.ref().child('category/${path.basename(imageFile.path)}');
+    final Reference storageReference = _firebaseStorage
+        .ref()
+        .child('category/${path.basename(imageFile.path)}');
     final TaskSnapshot uploadTask = await storageReference.putFile(imageFile);
     return await uploadTask.ref.getDownloadURL();
   }
@@ -135,14 +92,12 @@ class _EditDataState extends State<EditData> {
           isSubmitting = true;
         });
 
-        // Upload new images and get their URLs
         List<String> imageUrls = [];
         for (int i = 0; i < _imageFiles.length; i++) {
           final String imageUrl = await uploadImage(_imageFiles[i]);
           imageUrls.add(imageUrl);
         }
 
-        // Combine new image URLs with existing ones
         imageUrls.addAll(existingImageUrls);
 
         final DocumentReference documentRef = _firestore
@@ -165,13 +120,12 @@ class _EditDataState extends State<EditData> {
           isSubmitting = false;
         });
 
-        Navigator.pop(context, true); // Navigate back with success indicator
+        Navigator.pop(context, true);
       } catch (error) {
         setState(() {
           isSubmitting = false;
         });
         print('Error updating document in Firestore: $error');
-        // Handle error display or logging
       }
     }
   }
@@ -180,7 +134,21 @@ class _EditDataState extends State<EditData> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Update Add'),
+        centerTitle: true,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            )),
+        title: const Text('Update Ad',
+            style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w700,
+                color: Colors.white)),
+        backgroundColor: Colors.green,
       ),
       body: Stack(
         children: [
@@ -191,126 +159,31 @@ class _EditDataState extends State<EditData> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Ad Name *"),
-                  CustomTextFormField(
+                  _buildTitle('Ad Name *'),
+                  _buildTextField(
                     initialValue: adName,
                     hintText: 'Enter Ad Name',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter Ad Name';
-                      }
-                      return null;
-                    },
-                    onChanged: handleAdNameChange,
+                    onChanged: (value) => adName = value,
                   ),
-                  const SizedBox(height: 16.0),
-                  const Text('Description *'),
-                  CustomTextFormField(
+                  _buildTitle('Description *'),
+                  _buildTextField(
                     initialValue: description,
                     hintText: 'Enter Description',
                     maxLines: 4,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter Description';
-                      }
-                      return null;
-                    },
-                    onChanged: handleDescriptionChange,
+                    onChanged: (value) => description = value,
                   ),
-                  const SizedBox(height: 16.0),
-                  const Text('Tag *'),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: tags.map((tag) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(tag),
-                            const SizedBox(width: 4.0),
-                            GestureDetector(
-                              onTap: () => handleRemoveTag(tag),
-                              child: const Icon(
-                                Icons.close,
-                                size: 16.0,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomTextFormField(
-                          hintText: 'Enter a new tag',
-                          onChanged: (value) {
-                            setState(() {
-                              newTag = value;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      AddTagButton(
-                        onTap: handleAddTag,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16.0),
-                  const Text('Negotiable *'),
-                  DropdownButtonFormField<String>(
-                    value: negotiable,
-                    onChanged: handleNegotiableChange,
-                    items: const [
-                      DropdownMenuItem(
-                        value: '',
-                        child: Text('Select'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Yes',
-                        child: Text('Yes'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'No',
-                        child: Text('No'),
-                      ),
-                    ],
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: const BorderSide(color: Color(0xFFC3C3C3), width: 1),
-                      ),
-                      contentPadding: const EdgeInsets.all(16.0),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  const Text('Price (INR) *'),
-                  CustomTextFormField(
+                  _buildTitle('Tags *'),
+                  _buildTagSection(),
+                  _buildTitle('Negotiable *'),
+                  _buildDropdownField(),
+                  _buildTitle('Price (INR) *'),
+                  _buildTextField(
                     initialValue: price,
                     hintText: 'Enter Price',
                     keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter Price';
-                      }
-                      return null;
-                    },
-                    onChanged: handlePriceChange,
+                    onChanged: (value) => price = value,
                   ),
-                  const SizedBox(height: 16.0),
-                  const Text('Add Photos'),
-                  const SizedBox(height: 8.0),
+                  _buildTitle('Add Photos'),
                   ImageUploader(
                     onImagesChanged: (imageFiles) {
                       setState(() {
@@ -318,26 +191,8 @@ class _EditDataState extends State<EditData> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16.0),
-                  GestureDetector(
-                    onTap: handleSubmit,
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 20),
+                  _buildSubmitButton(),
                 ],
               ),
             ),
@@ -353,56 +208,131 @@ class _EditDataState extends State<EditData> {
       ),
     );
   }
-}
 
-class CustomTextFormField extends StatefulWidget {
-  final String? initialValue;
-  final String? hintText;
-  final int? maxLines;
-  final TextInputType? keyboardType;
-  final ValueChanged<String>? onChanged;
-  final FormFieldValidator<String>? validator;
-
-  const CustomTextFormField({
-    Key? key,
-    this.initialValue,
-    this.hintText,
-    this.maxLines,
-    this.keyboardType,
-    this.onChanged,
-    this.validator,
-  }) : super(key: key);
-
-  @override
-  _CustomTextFormFieldState createState() => _CustomTextFormFieldState();
-}
-
-class _CustomTextFormFieldState extends State<CustomTextFormField> {
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialValue ?? '');
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: _controller,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
+  Widget _buildTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
       ),
-      maxLines: widget.maxLines,
-      keyboardType: widget.keyboardType,
-      onChanged: widget.onChanged,
-      validator: widget.validator,
+    );
+  }
+
+  Widget _buildTextField({
+    String? initialValue,
+    String? hintText,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+    required Function(String) onChanged,
+  }) {
+    return TextFormField(
+      initialValue: initialValue,
+      decoration: InputDecoration(
+        hintText: hintText,
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.all(16.0),
+      ),
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildTagSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8.0,
+          children: tags.map((tag) {
+            return Chip(
+              label: Text(tag),
+              deleteIcon: const Icon(Icons.close, size: 16.0),
+              onDeleted: () {
+                setState(() {
+                  tags.remove(tag);
+                });
+              },
+            );
+          }).toList(),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildTextField(
+                hintText: 'Enter a new tag',
+                onChanged: (value) => newTag = value,
+              ),
+            ),
+            const SizedBox(width: 8.0),
+            IconButton(
+              icon: const Icon(
+                Icons.add,
+                color: Colors.green,
+                size: 35,
+              ),
+              onPressed: () {
+                if (tags.length < 5 && newTag.trim().isNotEmpty) {
+                  setState(() {
+                    tags.add(newTag.trim());
+                    newTag = '';
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField() {
+    return DropdownButtonFormField<String>(
+      value: negotiable,
+      onChanged: (value) => setState(() => negotiable = value!),
+      items: const [
+        DropdownMenuItem(value: '', child: Text('Select')),
+        DropdownMenuItem(value: 'Yes', child: Text('Yes')),
+        DropdownMenuItem(value: 'No', child: Text('No')),
+      ],
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.all(16.0),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return GestureDetector(
+      onTap: handleSubmit,
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.green,
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: const Text(
+          'Submit',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 }
