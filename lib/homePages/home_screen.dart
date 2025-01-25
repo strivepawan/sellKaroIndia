@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sell_karo_india/models/city_selction.dart';
@@ -163,7 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: Row(
-                mainAxisSize: MainAxisSize.min, // Ensure it doesn't take excessive space
+                mainAxisSize:
+                    MainAxisSize.min, // Ensure it doesn't take excessive space
                 children: [
                   const Icon(Icons.location_on, color: Colors.black, size: 20),
                   const SizedBox(width: 8),
@@ -187,7 +189,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
-          const NotificationIcon(),
           if (_userImageUrl != null)
             IconButton(
               onPressed: () {
@@ -215,9 +216,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               },
-              icon: const Icon(Icons.account_circle_outlined,
-                  size: 32, color: Colors.black),
+              icon: const Icon(CupertinoIcons.person,
+                  size: 32.5, color: Colors.green),
             ),
+          SizedBox(
+            width: 10,
+          ),
         ],
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -302,7 +306,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
             const SizedBox(
               height: 10,
             ),

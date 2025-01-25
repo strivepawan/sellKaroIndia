@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:http/http.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:http/http.dart';
-
 import '../models/chat_user.dart';
 import '../models/message.dart';
 import 'notification_access_token.dart';
@@ -32,7 +30,7 @@ class APIs {
       createdAt: '',
       isOnline: false,
       lastActive: '',
-      pushToken: '');
+      pushToken: '', phone: '');
 
   // to return current user
   static User get user => auth.currentUser!;
@@ -168,7 +166,7 @@ class APIs {
         createdAt: time,
         isOnline: false,
         lastActive: time,
-        pushToken: '');
+        pushToken: '', phone: '');
 
     return await firestore
         .collection('users')

@@ -5,15 +5,18 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BoostPage extends StatefulWidget {
+  final String userId;
   final String productName;
-  final String ImageUrl;
+  final String imageUrl;
   final String desc;
 
-  const BoostPage(
-      {super.key,
-        required this.productName,
-        required this.ImageUrl,
-        required this.desc});
+  const BoostPage({
+    super.key,
+    required this.userId,
+    required this.productName,
+    required this.imageUrl,
+    required this.desc,
+  });
 
   @override
   State<BoostPage> createState() => _BoostPageState();
@@ -62,11 +65,14 @@ class _BoostPageState extends State<BoostPage> {
     await _localNotifications.show(0, title, body, notificationDetails);
   }
 
-  Future<void> _sendPaymentDetailsToFirestore(String status, String paymentId, String endTime) async {
+  Future<void> _sendPaymentDetailsToFirestore(
+      String status, String paymentId, String endTime) async {
     try {
+      // Add boost details to the `boostPayments` collection
       await _firestore.collection('boostPayments').add({
+        'userId': widget.userId,
         'productName': widget.productName,
-        'imageUrl': widget.ImageUrl,
+        'imageUrl': widget.imageUrl,
         'description': widget.desc,
         'paymentStatus': status,
         'paymentId': paymentId,
@@ -75,50 +81,23 @@ class _BoostPageState extends State<BoostPage> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      print("Payment details successfully sent to Firestore.");
+      // Update user's document with boost details
+      await _firestore.collection('users').doc(widget.userId).update({
+        'boostedAds': FieldValue.arrayUnion([
+          {
+            'productName': widget.productName,
+            'imageUrl': widget.imageUrl,
+            'description': widget.desc,
+            'boostEndTime': endTime,
+            'boostDuration': _selectedBoostDuration,
+          }
+        ]),
+      });
+
+      print("Payment details and user data successfully updated in Firestore.");
     } catch (e) {
       print("Error sending payment details to Firestore: $e");
     }
-  }
-
-  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-    print(response.paymentId);
-
-    DateTime endTime =
-    DateTime.now().add(Duration(days: _selectedBoostDuration));
-    String endTimeString = endTime.toIso8601String();
-
-    // Save to SharedPreferences
-    await _savePaymentDetails(
-        "success", response.paymentId ?? "N/A", endTimeString);
-
-    // Send to Firestore
-    await _sendPaymentDetailsToFirestore(
-        "success", response.paymentId ?? "N/A", endTimeString);
-
-    _showNotification(
-      "Payment Successful",
-      "Your boost is active for $_selectedBoostDuration days.",
-    );
-
-    _showAlertDialog("Payment Successful", "Payment ID: ${response.paymentId}",
-        Icons.check_circle, Colors.green);
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) async {
-    await _savePaymentDetails("failure", response.message ?? "Unknown error", "");
-
-    // Send failure details to Firestore
-    await _sendPaymentDetailsToFirestore(
-        "failure", response.message ?? "N/A", "");
-
-    _showAlertDialog("Payment Failed", response.message ?? "Unknown error",
-        Icons.error, Colors.red);
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    _showAlertDialog(
-        "External Wallet", response.walletName ?? "Unknown Wallet", Icons.wallet, Colors.blue);
   }
 
   void _showAlertDialog(
@@ -161,6 +140,43 @@ class _BoostPageState extends State<BoostPage> {
     );
   }
 
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    DateTime endTime =
+    DateTime.now().add(Duration(days: _selectedBoostDuration));
+    String endTimeString = endTime.toIso8601String();
+
+    // Save to SharedPreferences
+    await _savePaymentDetails(
+        "success", response.paymentId ?? "N/A", endTimeString);
+
+    // Send to Firestore
+    await _sendPaymentDetailsToFirestore(
+        "success", response.paymentId ?? "N/A", endTimeString);
+
+    _showNotification(
+      "Payment Successful",
+      "Your boost is active for $_selectedBoostDuration days.",
+    );
+
+    _showAlertDialog("Payment Successful", "Payment ID: ${response.paymentId}",
+        Icons.check_circle, Colors.green);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) async {
+    await _savePaymentDetails("failure", response.message ?? "Unknown error", "");
+
+    // Send failure details to Firestore
+    await _sendPaymentDetailsToFirestore(
+        "failure", response.message ?? "N/A", "");
+
+    _showAlertDialog("Payment Failed", response.message ?? "Unknown error",
+        Icons.error, Colors.red);
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    _showAlertDialog(
+        "External Wallet", response.walletName ?? "Unknown Wallet", Icons.wallet, Colors.blue);
+  }
 
   Future<void> _savePaymentDetails(
       String status, String details, String endTime) async {
@@ -256,7 +272,7 @@ class _BoostPageState extends State<BoostPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 image: DecorationImage(
-                  image: NetworkImage(widget.ImageUrl),
+                  image: NetworkImage(widget.imageUrl),
                   fit: BoxFit.cover,
                 ),
               ),

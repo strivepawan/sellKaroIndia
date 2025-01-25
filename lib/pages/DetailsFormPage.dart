@@ -6,9 +6,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart';
 import 'package:sell_karo_india/homepage/home_page.dart';
 
-import '../homePages/home_screen.dart';
+import '../chatApp/api/apis.dart';
 
 class UserForm extends StatefulWidget {
+  final String uid;
+
+  const UserForm({super.key, required this.uid});
   @override
   _UserFormState createState() => _UserFormState();
 }
@@ -20,7 +23,8 @@ class _UserFormState extends State<UserForm> {
   File? _image;
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -31,7 +35,8 @@ class _UserFormState extends State<UserForm> {
   Future<String?> _uploadImage(File image) async {
     try {
       final fileName = basename(image.path);
-      final storageRef = FirebaseStorage.instance.ref().child('user_images/$fileName');
+      final storageRef =
+          FirebaseStorage.instance.ref().child('user_images/$fileName');
       await storageRef.putFile(image);
       return await storageRef.getDownloadURL();
     } catch (e) {
@@ -46,10 +51,15 @@ class _UserFormState extends State<UserForm> {
 
       if (imageUrl != null) {
         try {
-          await FirebaseFirestore.instance.collection('users').add({
+          // Updating the current user information in Firestore
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(APIs.user.uid)
+              .set({
             'name': _nameController.text,
             'phone': _phoneController.text,
             'image': imageUrl,
+            'uid': APIs.user.uid, // Use the user.uid to associate this record
           });
 
           if (mounted) {
@@ -87,20 +97,24 @@ class _UserFormState extends State<UserForm> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(this.context).showSnackBar(
-          SnackBar(content: Text('Please fill all fields and select an image.')),
+          SnackBar(
+              content: Text('Please fill all fields and select an image.')),
         );
       }
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Form', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white)),
+        title: Text('User Form',
+            style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
         centerTitle: true,
-        backgroundColor: Colors.green     ,
+        backgroundColor: Colors.green,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -116,10 +130,12 @@ class _UserFormState extends State<UserForm> {
                     onTap: _pickImage,
                     child: CircleAvatar(
                       radius: 60,
-                      backgroundImage: _image != null ? FileImage(_image!) : null,
+                      backgroundImage:
+                          _image != null ? FileImage(_image!) : null,
                       backgroundColor: Colors.green.shade100,
                       child: _image == null
-                          ? Icon(Icons.camera_alt, size: 50, color: Colors.green)
+                          ? Icon(Icons.camera_alt,
+                              size: 50, color: Colors.green)
                           : null,
                     ),
                   ),
@@ -159,7 +175,6 @@ class _UserFormState extends State<UserForm> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your phone number';
@@ -167,9 +182,10 @@ class _UserFormState extends State<UserForm> {
                     return null;
                   },
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitForm,
+                  child: Text('Submit', style: TextStyle(fontSize: 18)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
@@ -177,7 +193,6 @@ class _UserFormState extends State<UserForm> {
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text('Submit', style: TextStyle(fontSize: 18)),
                 ),
               ],
             ),

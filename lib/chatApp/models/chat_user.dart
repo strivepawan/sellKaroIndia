@@ -1,5 +1,6 @@
 class ChatUser {
   late String image;
+  late String phone;
   late String about;
   late String name;
   late String createdAt;
@@ -10,6 +11,7 @@ class ChatUser {
   late String pushToken;
 
   ChatUser({
+    required this.phone,
     required this.image,
     required this.about,
     required this.name,
@@ -25,6 +27,7 @@ class ChatUser {
     image = json['image'] ?? '';
     about = json['about'] ?? '';
     name = json['name'] ?? '';
+    phone = json['phone'] ?? '';
     createdAt = json['created_at'] ?? '';
     isOnline = json['is_online'] ?? false;
     id = json['id'] ?? '';
@@ -36,6 +39,7 @@ class ChatUser {
   factory ChatUser.fromMap(Map<String, dynamic> map) {
     return ChatUser(
       image: map['image'] ?? '',
+      phone: map['phone'] ?? '',
       about: map['about'] ?? '',
       name: map['name'] ?? '',
       createdAt: map['created_at'] ?? '',
@@ -51,6 +55,7 @@ class ChatUser {
     return {
       'image': image,
       'about': about,
+      'phone': phone,
       'name': name,
       'created_at': createdAt,
       'is_online': isOnline,

@@ -56,7 +56,7 @@ class _RegisterOrLoginState extends State<RegisterOrLogin> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => UserForm(),
+            builder: (context) => UserForm(uid: userCredential.user?.uid ?? ''),
           ),
         );
 

@@ -167,8 +167,8 @@ class _RecentAdsState extends State<RecentAds> {
               MaterialPageRoute(
                 builder: (context) => BoostPage(
                   productName: data['ad_name'] ?? 'No Ad Name',
-                  ImageUrl: data['images']?.first ?? '',
-                  desc: data['description'] ?? '',
+
+                  desc: data['description'] ?? '', userId: widget.userId, imageUrl:data['images']?.first ?? '',
                 ),
               ),
             );
@@ -179,8 +179,9 @@ class _RecentAdsState extends State<RecentAds> {
             context,
             MaterialPageRoute(
               builder: (context) => BoostPage(
+                userId: widget.userId,
                 productName: data['ad_name'] ?? 'No Ad Name',
-                ImageUrl: data['images']?.first ?? '',
+                imageUrl: data['images']?.first ?? '',
                 desc: data['description'] ?? '',
               ),
             ),
