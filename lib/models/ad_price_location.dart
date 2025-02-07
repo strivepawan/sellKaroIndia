@@ -25,6 +25,11 @@ class AdDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _buildImageSlider(),
+        ),
+        const SizedBox(height: 16),
         _buildText(adData['ad_name'] ?? 'No name', 22, FontWeight.w600, maxLines: 2),
         const SizedBox(height: 8),
         _buildRow(Icons.access_time_rounded, _formatDate(adData['timestamp']?.toDate() ?? DateTime.now())),
@@ -53,6 +58,66 @@ class AdDetails extends StatelessWidget {
       ],
     );
   }
+
+Widget _buildImageSlider() {
+  return Stack(
+    children: [
+      SizedBox(
+        height: 200,
+        width: double.infinity,
+        child: PageView.builder(
+          itemCount: imageUrls.length,
+          onPageChanged: (index) => currentImageIndex.value = index,
+          itemBuilder: (context, index) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    imageUrls[index],
+                    fit: BoxFit.cover,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.black.withOpacity(0.2), Colors.transparent],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+      Positioned(
+        bottom: 10,
+        left: 0,
+        right: 0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            imageUrls.length,
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: currentImageIndex.value == index ? 12 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: currentImageIndex.value == index ? Colors.orange : Colors.grey.shade400,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 
   Widget _buildText(String text, double fontSize, FontWeight fontWeight, {int maxLines = 1}) {
     return Padding(
@@ -94,11 +159,8 @@ class AdDetails extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-
         children: [
-          Divider(
-            color: Colors.grey
-          ),
+          Divider(color: Colors.grey),
           Text(
             'Price: ₹${adData['price'] ?? 'N/A'}',
             style: GoogleFonts.montserrat(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green.shade700),
@@ -117,9 +179,7 @@ class AdDetails extends StatelessWidget {
               ),
             ],
           ),
-          Divider(
-              color: Colors.grey
-          ),
+          Divider(color: Colors.grey),
         ],
       ),
     );

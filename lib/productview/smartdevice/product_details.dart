@@ -76,6 +76,7 @@ class ElectronicProductView extends StatelessWidget {
 
     final adData = snapshot.data!;
     final imageUrls = List<String>.from(adData['images'] ?? []);
+    print('Image Urls: \n $imageUrls');
 
     return SingleChildScrollView(
       child: Column(

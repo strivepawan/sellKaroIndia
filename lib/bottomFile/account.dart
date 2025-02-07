@@ -172,7 +172,7 @@ class _AccountBottomState extends State<AccountBottom>
                   const SizedBox(height: 16),
                   // TabBarView
                   SizedBox(
-                    height: 400, // Set appropriate height
+                    height: 12000, // Set appropriate height
                     child: TabBarView(
                       controller: _tabController,
                       children: [

@@ -77,19 +77,6 @@ class _RecentAdsState extends State<RecentAds> {
     }
   }
 
-  Future<void> _boostAd(String docId, String adId) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('category')
-          .doc(docId)
-          .collection('ads')
-          .doc(adId)
-          .update({'boosted': true});
-      print('Ad $adId boosted successfully');
-    } catch (error) {
-      print('Error boosting ad $adId: $error');
-    }
-  }
 
   void _confirmDelete(BuildContext context, String docId, String adId) {
     showDialog(
@@ -272,7 +259,7 @@ class _RecentAdsState extends State<RecentAds> {
                     return GestureDetector(
                       onTap: () => _viewDetails(context, docId, doc.id),
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                        margin: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF8F9FC),
                           borderRadius: BorderRadius.circular(12.0),
