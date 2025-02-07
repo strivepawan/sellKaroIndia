@@ -69,6 +69,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   carousel_slider: ^5.0.0
+  empty_widget: ^0.0.5
 
 dev_dependencies:
   flutter_test:

@@ -13,15 +13,15 @@ class BoostedAds extends StatefulWidget {
 class _BoostedAdsState extends State<BoostedAds> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Function to fetch boosted ads from Firestore
   Future<List<Map<String, dynamic>>> _getBoostedAds() async {
     QuerySnapshot snapshot = await _firestore
         .collection('ads') // Replace with your collection name
-        .where('boostedAds', arrayContains: {'uid': widget.userId})
+        .where('boostedAds', arrayContains: {'uid': widget.userId}) // Checking if uid is in boostedAds array
         .get();
 
     return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
+
 
   // Function to calculate remaining time for a boost
   String _getRemainingTime(String boostEndTime) {
